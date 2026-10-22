@@ -22,7 +22,8 @@ Your API runs in Europe, the US and Asia. One API key may call all three at the 
 
 While much of the window is left, shares are large and nobody asks. Questions happen only at the tail, when shares shrink to a few.
 
-**Why no algorithm can do better:** if fewer than `N × b` requests are left (N regions, each able to admit up to `b` before it
+**Why no algorithm can do better:** here **b** is how many requests one region may admit on its own before it next hears the
+others — in the rule above, its share between two syncs. If fewer than `N × b` requests are left (N regions, each able to admit up to `b` before it
 hears the others), there is always a way for the regions, acting at once, to exceed the limit — so someone must ask. Above that, nobody needs to.
 
 ## Example (one hour, 3 regions, limit 5,000)
@@ -86,6 +87,22 @@ def on_request():
 You fill in `all_regions_admitted_count()` and `others_atomically_fit()` with what you already run (Redis `INCR`, etcd
 compare-and-set, an `UPDATE ... WHERE count < LIMIT`). The question must be **atomic**: two regions asking at once must not both
 get the last slot. Call `on_request()` where you check the limit today (API gateway middleware); run `sync()` on a 1 s timer.
+
+The one line people get wrong is the question. "Admitted so far < LIMIT" is **not enough**: the other regions may
+already hold unused share they are allowed to spend without asking. Count it:
+
+```python
+def others_atomically_fit():                   # one atomic step (Redis Lua script, etcd txn, SQL transaction)
+    admitted = all_regions_admitted_count()    # including in flight
+    held = sum(r.share - r.used for r in other_regions() if r.share > r.used)
+    if admitted + held < LIMIT:
+        record_admit()                         # inside the same atomic step
+        return True
+    return False
+```
+
+Without `held`, two regions can both spend their shares and the question still says yes — overshoot.
+This is the second bug the model checker found.
 
 **How to see it works:** log how many requests took the local path and how many asked. Admitted should equal the limit exactly,
 and almost all should be local.
