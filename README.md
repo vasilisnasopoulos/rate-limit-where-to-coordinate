@@ -54,6 +54,22 @@ Sync period vs requests that waited (same traffic): 0.1 s → 0.01% · 1 s → 0
 not seen them yet, the limit is exceeded — rarely, so tests will not show it. This was found by model checking with TLA+, with
 reports that arrive late.
 
+## Use it — Python + Redis
+
+A working version of the rule is in [`python/`](python/): one file to copy, tests, and a demo you can run with your own
+numbers. On a laptop, 3 regions, limit 5,000, traffic 80/10/10: **5,000 of 5,000 admitted, 99.4% decided locally**.
+
+```bash
+pip install redis
+cd python && python demo.py --limit 5000 --traffic 80,10,10 --rate 300 --sync 1 --seconds 30
+```
+
+```python
+limiter = EscrowLimiter(redis_client, region="eu-west", limit=5000, regions=3).start()
+if not limiter.allow(api_key):
+    return 429
+```
+
 ## In code (pseudocode)
 
 ```python
@@ -125,4 +141,4 @@ limiters with bounded overshoot are industry practice. What is added here is the
 Questions or want it run on your numbers: open an issue or DM me.
 
 ---
-© 2026 Vasilis Nasopoulos — [CC BY 4.0](LICENSE)
+© 2026 Vasilis Nasopoulos — text [CC BY 4.0](LICENSE) · code in `python/` [MIT](python/LICENSE)
