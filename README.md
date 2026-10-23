@@ -141,4 +141,4 @@ limiters with bounded overshoot are industry practice. What is added here is the
 Questions or want it run on your numbers: open an issue or DM me.
 
 ---
-© 2026 Vasilis Nasopoulos — text [CC BY 4.0](LICENSE) · code in `python/` [MIT](python/LICENSE)
+© 2026 Vasilis Nasopoulos. All rights reserved. No permission is granted to use, copy, modify, distribute, sublicense, or sell this material, including source code or binaries, without prior written permission. See [LICENSE](LICENSE).

@@ -79,4 +79,4 @@ be heard, and that fewer is impossible: [where-coordination-goes](https://github
 Questions, or want it for your system: open an issue or DM me.
 
 ---
-© 2026 Vasilis Nasopoulos — code under the MIT licence ([LICENSE](LICENSE))
+© 2026 Vasilis Nasopoulos. All rights reserved. No permission is granted to use, copy, modify, distribute, sublicense, or sell this material, including source code or binaries, without prior written permission. See the repository [LICENSE](../LICENSE).
